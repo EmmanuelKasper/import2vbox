@@ -1,0 +1,38 @@
+This script lets you import a virtual machine disk image to RHEV or
+oVirt.
+
+IMPORTANT NOTES:
+
+(1) In the latest oVirt/RHEV/RHV there is a GUI option to import
+disks.  You DO NOT NEED TO USE THIS SCRIPT if you are using a
+sufficiently new version of oVirt.
+
+(2) This script *requires* a 64 bit host.  Perl will cause silent
+overflows on 32 bit hosts.
+
+
+Requirements:
+
+    perl
+  * perl-Pod-Usage (on debian/ubuntu: perl-doc)
+  * perl-Getopt-Long
+  * perl-File-Temp
+  * perl-POSIX
+    perl-XML-Writer (on debian/ubuntu: libxml-writer-perl)
+    perl-Sys-Guestfs (on debian libsys-virt-perl)
+
+* = usually provided as part of base Perl package
+
+For instructions, read the script or do:
+
+  ./import-to-ovirt.pl --help
+  ./import-to-ovirt.pl --man
+
+Copyright (C) 2015 Richard W.M. Jones <rjones@redhat.com>
+Copyright (C) 2015 Red Hat Inc.
+
+See the file 'COPYING' for licensing information.
+
+Send patches to the virt-tools mailing list:
+https://www.redhat.com/mailman/listinfo/virt-tools-list
+
