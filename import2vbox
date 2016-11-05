@@ -25,6 +25,7 @@ use Getopt::Long;
 use File::Temp qw(tempdir);
 use POSIX qw(_exit setgid setuid strftime);
 use XML::Writer;
+use Cwd;
 
 use Sys::Guestfs;
 
@@ -208,11 +209,15 @@ pod2usage (1) if $help;
 pod2usage (-exitval => 0, -verbose => 2) if $man;
 
 # Get the parameters.
-if (@ARGV < 2) {
+if (@ARGV < 1) {
     die "Use '$0 --man' to display the manual.\n"
 }
 
-my @disks = @ARGV[0 .. $#ARGV-1];
+#my @disks = @ARGV[0 .. $#ARGV-1];
+my @disks;
+foreach my $disk (@ARGV) {
+    push @disks, $disk
+}
 my $output = $ARGV[$#ARGV];
 
 if (!defined $name) {
@@ -338,71 +343,12 @@ else {
     $ostype = "Unassigned"
 }
 
-# Mount the ESD if needed (or just check it exists).
-my $mountpoint;
-if (-d $output) {
-    $mountpoint = $output;
-} elsif ($output =~ m{^.*:.*$}) {
-    my $umount;
-    $umount = $mountpoint = tempdir (CLEANUP => 1);
-    system ("mount", "-t", "nfs", $output, $mountpoint) == 0
-        or die "$0: mount $output failed: $?\n";
-    END { system ("umount", $umount) if defined $umount }
-} else {
-    die "$0: ESD $output is not a directory or an NFS mountpoint\n"
-}
-
-# Check the ESD looks like an ESD.
-my @entries = <$mountpoint/*>;
-@entries =
-    grep { m{/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$}i }
-    @entries;
-if (@entries == 0) {
-    die "$0: does $output really point to an oVirt Export Storage Domain?\n"
-}
-if (@entries > 1) {
-    die "$0: multiple GUIDs found in oVirt Export Storage Domain\n"
-}
-my $esd_uuid_dir = $entries[0];
-my $esd_uuid = $esd_uuid_dir;
-$esd_uuid =~ s{.*/}{};
-
-if (! -d $esd_uuid_dir ||
-    ! -d "$esd_uuid_dir/images" ||
-    ! -d "$esd_uuid_dir/master" ||
-    ! -d "$esd_uuid_dir/master/vms") {
-    die "$0: $output doesn't look like an Export Storage Domain\n"
-}
+my $files_output_dir = getcwd;
+#my $files_output_dir = $files_output_dir;
+#$files_output_dir =~ s{.*/}{};
 
 # Start the import.
 print "Importing $product_name to $output...\n";
-
-# A helper function that forks and runs some code / a command as
-# an alternate UID:GID.
-sub run_as_vdsm
-{
-    my $fn = shift;
-
-    my $pid = fork ();
-    die "fork: $!" unless defined $pid;
-    if ($pid == 0) {
-        # Child process.
-        if ($EUID == 0) {
-            setgid (36);
-            setuid (36);
-        }
-        eval { &$fn () };
-        if ($@) {
-            print STDERR "$@\n";
-            _exit (1);
-        }
-        _exit (0);
-    }
-    waitpid ($pid, 0) or die "waitpid: $!";
-    if ($? != 0) {
-        die "$0: run_as_vdsm: child process failed (status $?)\n";
-    }
-}
 
 # Generate a UUID.
 sub uuidgen
@@ -431,9 +377,9 @@ END {
     if ($delete_output_on_exit) {
         # Can't use run_as_vdsm in an END{} block.
         foreach (@image_uuids) {
-            system ("rm", "-rf", "$esd_uuid_dir/images/$_");
+            print ("rm", "-rf", "$files_output_dir/images/$_\n");
         }
-        system ("rm", "-rf", "$esd_uuid_dir/master/vms/$vm_uuid");
+        print ("rm", "-rf", "$files_output_dir/master/vms/$vm_uuid\n");
     }
 };
 
@@ -447,16 +393,10 @@ my @real_sizes;
 for ($i = 0; $i < @disks; ++$i) {
     my $input_file = $disks[$i];
     my $image_uuid = $image_uuids[$i];
-    run_as_vdsm (sub {
-        my $path = "$esd_uuid_dir/images/$image_uuid";
-        mkdir ($path, 0755) or die "mkdir: $path: $!";
-    });
-    my $output_file = "$esd_uuid_dir/images/$image_uuid/".$vol_uuids[$i];
-    run_as_vdsm (sub {
-        open (my $fh, ">", $output_file) or die "open: $output_file: $!";
-        # Well done NFS root_squash, you make the world less secure.
-        chmod (0666, $output_file) or die "chmod: $output_file: $!";
-    });
+    my $path = "$files_output_dir/$image_uuid";
+    mkdir ($path, 0755) or die "mkdir: $path: $!";
+    my $output_file = "$files_output_dir/$image_uuid/".$vol_uuids[$i];
+    open (my $fh, ">", $output_file) or die "open: $output_file: $!";
     print "Copying $input_file ...\n";
     my @compat_option = ();
     if ($qemu_img_supports_compat) {
@@ -474,7 +414,7 @@ for ($i = 0; $i < @disks; ++$i) {
 
     # Create .meta files per disk.
     my $meta = <<"EOF";
-DOMAIN=$esd_uuid
+DOMAIN=$files_output_dir
 VOLTYPE=LEAF
 CTIME=$time
 MTIME=$time
@@ -488,13 +428,11 @@ FORMAT=COW
 TYPE=SPARSE
 DESCRIPTION=$imported_by
 EOF
-    my $meta_file = $output_file . ".meta";
-    run_as_vdsm (sub {
-        open (my $fh, ">", $meta_file) or die "open: $meta_file: $!";
-        print $fh $meta
-    });
-}
 
+    my $meta_file = $output_file . ".meta";
+    open (my $file_fh, ">", $meta_file) or die "open: $meta_file: $!";
+    print $file_fh $meta;
+}
 # Create the OVF.
 print "Creating OVF metadata ...\n";
 
@@ -758,7 +696,7 @@ for ($i = 0; $i < @disks; ++$i)
     $w->startTag ([$rasd_ns, "ApplicationList"]);
     $w->endTag ();
     $w->startTag ([$rasd_ns, "StorageId"]);
-    $w->characters ($esd_uuid);
+    $w->characters ($files_output_dir);
     $w->endTag ();
     $w->startTag ([$rasd_ns, "StoragePoolId"]);
     $w->characters ("00000000-0000-0000-0000-000000000000");
@@ -783,17 +721,13 @@ $w->endTag ("Content");
 $w->endTag ([$ovf_ns, "Envelope"]);
 $w->end ();
 
-#print "OVF:\n$ovf\n";
+print "OVF:\n$ovf\n";
 
-my $ovf_dir = "$esd_uuid_dir/master/vms/$vm_uuid";
-run_as_vdsm (sub {
-    mkdir ($ovf_dir, 0755) or die "mkdir: $ovf_dir: $!";
-});
+my $ovf_dir = "$files_output_dir";
+-d $ovf_dir || mkdir ($ovf_dir, 0755) or die "mkdir: $ovf_dir: $!";
 my $ovf_file = "$ovf_dir/$vm_uuid.ovf";
-run_as_vdsm (sub {
-    open (my $fh, ">", $ovf_file) or die "open: $ovf_file: $!";
-    print $fh $ovf
-});
+open (my $ovf_fh, ">", $ovf_file) or die "open: $ovf_file: $!";
+print $ovf_fh $ovf;
 
 # Finished.
 $delete_output_on_exit = 0;
