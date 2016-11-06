@@ -20,6 +20,7 @@ Requirements:
   * perl-POSIX
     perl-XML-Writer (on debian/ubuntu: libxml-writer-perl)
     perl-Sys-Guestfs (on debian libsys-virt-perl)
+    uuid-runtime
 
 * = usually provided as part of base Perl package
 
