@@ -447,10 +447,10 @@ $w->startTag ("References");
 
 for ($i = 0; $i < @disks; ++$i)
 {
-    my $href = $image_uuids[$i] . "/" . $vol_uuids[$i];
+    my $href = $disks[$i];
     $w->startTag ("File",
                   [$ovf_ns, "href"] => $href,
-                  [$ovf_ns, "id"] => $vol_uuids[$i],
+                  [$ovf_ns, "id"] => $name . $i,
                   [$ovf_ns, "size"] => $virtual_sizes[$i],
                   [$ovf_ns, "description"] => $imported_by);
     $w->endTag ();
@@ -473,15 +473,7 @@ $w->endTag ();
 
 for ($i = 0; $i < @disks; ++$i)
 {
-    my $virtual_size_in_gb = $virtual_sizes[$i];
-    $virtual_size_in_gb /= 1024;
-    $virtual_size_in_gb /= 1024;
-    $virtual_size_in_gb /= 1024;
-    my $real_size_in_gb = $real_sizes[$i];
-    $real_size_in_gb /= 1024;
-    $real_size_in_gb /= 1024;
-    $real_size_in_gb /= 1024;
-    my $href = $image_uuids[$i] . "/" . $vol_uuids[$i];
+    my $href = $disks[$i];
 
     my $boot_drive;
     if ($i == 0) {
@@ -491,18 +483,10 @@ for ($i = 0; $i < @disks; ++$i)
     }
 
     $w->startTag ("Disk",
-                  [$ovf_ns, "diskId" ] => $vol_uuids[$i],
-                  [$ovf_ns, "actual_size"] =>
-                      sprintf ("%.0f", $real_size_in_gb),
-                  [$ovf_ns, "size"] =>
-                      sprintf ("%.0f", $virtual_size_in_gb),
-                  [$ovf_ns, "fileRef"] => $href,
-                  [$ovf_ns, "parentRef"] => "",
-                  [$ovf_ns, "vm_snapshot_id"] => uuidgen (),
-                  [$ovf_ns, "volume-format"] => "COW",
-                  [$ovf_ns, "volume-type"] => "Sparse",
+                  [$ovf_ns, "diskId" ] => "vmdisk" . $i,
+                  [$ovf_ns, "capacity"] => $virtual_sizes[$i],
+                  [$ovf_ns, "fileRef"] => $name . $i,
                   [$ovf_ns, "format"] => "http://en.wikipedia.org/wiki/Byte",
-                  [$ovf_ns, "disk-interface"] => "VirtIO",
                   [$ovf_ns, "disk-type"] => "System",
                   [$ovf_ns, "boot"] => $boot_drive);
     $w->endTag ();
