@@ -536,7 +536,7 @@ $w->characters ("1"); # qxl
 $w->endTag ();
 
 $w->startTag ("Section",
-              [$ovf_ns, "id"] => $vm_uuid,
+              [$ovf_ns, "id"] => "96", #TODO: do not hardcode this
               [$ovf_ns, "required"] => "false",
               [$xsi_ns, "type"] => "ovf:OperatingSystemSection_Type");
 $w->startTag ("Info");
@@ -607,27 +607,6 @@ $w->characters ("23");
 $w->endTag ();
 $w->startTag ([$rasd_ns, "UsbPolicy"]);
 $w->characters ("Disabled");
-$w->endTag ();
-$w->endTag ("Item");
-
-$w->startTag ("Item");
-$w->startTag ([$rasd_ns, "Caption"]);
-$w->characters ("Graphical Controller");
-$w->endTag ();
-$w->startTag ([$rasd_ns, "InstanceId"]);
-$w->characters (uuidgen ());
-$w->endTag ();
-$w->startTag ([$rasd_ns, "ResourceType"]);
-$w->characters ("20");
-$w->endTag ();
-$w->startTag ("Type");
-$w->characters ("video");
-$w->endTag ();
-$w->startTag ([$rasd_ns, "VirtualQuantity"]);
-$w->characters ("1");
-$w->endTag ();
-$w->startTag ([$rasd_ns, "Device"]);
-$w->characters ("qxl");
 $w->endTag ();
 $w->endTag ("Item");
 
