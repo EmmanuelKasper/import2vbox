@@ -402,37 +402,18 @@ for ($i = 0; $i < @disks; ++$i) {
     if ($qemu_img_supports_compat) {
         @compat_option = ("-o", "compat=0.10") # for RHEL 6-based ovirt nodes
     }
-    system ("qemu-img", "convert", "-p",
-            $input_file,
-            "-O", "qcow2",
-            @compat_option,
-            $output_file) == 0
-                or die "qemu-img: $input_file: failed (status $?)";
+    #system ("qemu-img", "convert", "-p",
+    #        $input_file,
+    #        "-O", "qcow2",
+    #        @compat_option,
+    #        $output_file) == 0
+    #           or die "qemu-img: $input_file: failed (status $?)";
+    print "calling qemu ....\n";
     push @real_sizes, -s $output_file;
 
     my $size_in_sectors = $virtual_sizes[$i] / 512;
 
-    # Create .meta files per disk.
-    my $meta = <<"EOF";
-DOMAIN=$files_output_dir
-VOLTYPE=LEAF
-CTIME=$time
-MTIME=$time
-IMAGE=$image_uuid
-DISKTYPE=1
-PUUID=00000000-0000-0000-0000-000000000000
-LEGALITY=LEGAL
-POOL_UUID=
-SIZE=$size_in_sectors
-FORMAT=COW
-TYPE=SPARSE
-DESCRIPTION=$imported_by
-EOF
-
-    my $meta_file = $output_file . ".meta";
-    open (my $file_fh, ">", $meta_file) or die "open: $meta_file: $!";
-    print $file_fh $meta;
-}
+    }
 # Create the OVF.
 print "Creating OVF metadata ...\n";
 
