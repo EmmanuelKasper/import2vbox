@@ -657,7 +657,7 @@ for ($i = 0; $i < @disks; ++$i)
     $w->characters ($href);
     $w->endTag ();
     $w->startTag ([$rasd_ns, "Parent"]);
-    $w->characters ("00000000-0000-0000-0000-000000000000");
+    $w->characters ("3");
     $w->endTag ();
     $w->startTag ([$rasd_ns, "Template"]);
     $w->characters ("00000000-0000-0000-0000-000000000000");
