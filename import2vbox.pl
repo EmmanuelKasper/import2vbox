@@ -637,7 +637,7 @@ $w->endTag ("Item");
 
 for ($i = 0; $i < @disks; ++$i)
 {
-    my $href = $image_uuids[$i] . "/" . $vol_uuids[$i];
+    my $href = $disks[$i];
 
     $w->startTag ("Item");
 
@@ -645,7 +645,7 @@ for ($i = 0; $i < @disks; ++$i)
     $w->characters ("Drive " . ($i+1));
     $w->endTag ();
     $w->startTag ([$rasd_ns, "InstanceId"]);
-    $w->characters ($vol_uuids[$i]);
+    $w->characters (4 + $i);
     $w->endTag ();
     $w->startTag ([$rasd_ns, "ResourceType"]);
     $w->characters ("17");
@@ -654,7 +654,7 @@ for ($i = 0; $i < @disks; ++$i)
     $w->characters ("disk");
     $w->endTag ();
     $w->startTag ([$rasd_ns, "HostResource"]);
-    $w->characters ($href);
+    $w->characters ("ovf:/disk/" . "vmdisk" . $i);
     $w->endTag ();
     $w->startTag ([$rasd_ns, "Parent"]);
     $w->characters ("3");
