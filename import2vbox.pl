@@ -260,13 +260,13 @@ if (@roots > 1) {
 my $root = $roots[0];
 
 # Save the inspection data.
-my $type = $g->inspect_get_type ($root);
-my $distro = $g->inspect_get_distro ($root);
-my $arch = $g->inspect_get_arch ($root);
-my $major_version = $g->inspect_get_major_version ($root);
-my $minor_version = $g->inspect_get_major_version ($root);
-my $product_name = $g->inspect_get_product_name ($root);
-my $product_variant = $g->inspect_get_product_variant ($root);
+my $type = $g->inspect_get_type ($root); #debian
+my $distro = $g->inspect_get_distro ($root); #linux
+my $arch = $g->inspect_get_arch ($root); #x86_64
+my $major_version = $g->inspect_get_major_version ($root); #7
+my $minor_version = $g->inspect_get_major_version ($root); #7
+my $product_name = $g->inspect_get_product_name ($root); #7.11
+my $product_variant = $g->inspect_get_product_variant ($root); #unknown
 
 # Get the virtual size of each disk.
 my @virtual_sizes;
@@ -276,21 +276,23 @@ foreach (@disks) {
 
 $g->close ();
 
+# http://schemas.dmtf.org/wbem/cim-html/2+/
+# and enum CIMOSType_T VBox/Main/include/ovfreader.h
 # Map inspection data to RHEV ostype.
 my $ostype;
-if ($type eq "linux" && $distro eq "rhel" && $major_version <= 6) {
+if ($type eq "linux" && $distro eq "rhel") {
     if ($arch eq "x86_64") {
-        $ostype = "RHEL${major_version}x64"
+        $ostype = 80
     } else {
-        $ostype = "RHEL$major_version"
+        $ostype = 79
     }
 }
-elsif ($type eq "linux" && $distro eq "rhel") {
-    if ($arch eq "x86_64") {
-        $ostype = "rhel_${major_version}x64"
-    } else {
-        $ostype = "rhel_$major_version"
-    }
+elsif ($type eq "linux" && $distro eq "debian") {
+	if ($arch eq "x86_64") {
+		$ostype = 96
+	} else {
+		$ostype = 95
+	}
 }
 elsif ($type eq "linux") {
     $ostype = "OtherLinux"
@@ -495,7 +497,7 @@ for ($i = 0; $i < @disks; ++$i)
 $w->endTag ();
 
 $w->startTag ("Content",
-              [$ovf_ns, "id"] => "out",
+              [$ovf_ns, "id"] => "$name",
               [$xsi_ns, "type"] => "ovf:VirtualSystem_Type");
 $w->startTag ("Name");
 $w->characters ($name);
@@ -543,7 +545,7 @@ $w->startTag ("Info");
 $w->characters ($product_name);
 $w->endTag ();
 $w->startTag ("Description");
-$w->characters ($ostype);
+$w->characters (join (' ', $distro, $type, $arch, $product_name));
 $w->endTag ();
 $w->endTag ();
 
