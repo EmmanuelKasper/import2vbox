@@ -690,11 +690,9 @@ $w->endTag ("Content");
 $w->endTag ([$ovf_ns, "Envelope"]);
 $w->end ();
 
-print "OVF:\n$ovf\n";
+#print "OVF:\n$ovf\n";
 
-my $ovf_dir = "$files_output_dir";
--d $ovf_dir || mkdir ($ovf_dir, 0755) or die "mkdir: $ovf_dir: $!";
-my $ovf_file = "$ovf_dir/$vm_uuid.ovf";
+my $ovf_file = "$name.ovf";
 open (my $ovf_fh, ">", $ovf_file) or die "open: $ovf_file: $!";
 print $ovf_fh $ovf;
 
