@@ -637,6 +637,27 @@ $w->characters ("Disabled");
 $w->endTag ();
 $w->endTag ("Item");
 
+$w->startTag ("Item");
+$w->startTag ([$rasd_ns, "Caption"]);
+$w->characters ("Ethernet adapter on 'NAT'");
+$w->endTag ();
+$w->startTag ([$rasd_ns, "Connection"]);
+$w->characters ("NAT");
+$w->endTag ();
+$w->startTag ([$rasd_ns, "ElementName"]);
+$w->characters ("Ethernet Adapter on 'NAT'");
+$w->endTag ();
+$w->startTag ([$rasd_ns, "InstanceId"]);
+$w->characters ("5");
+$w->endTag ();
+$w->startTag ([$rasd_ns, "ResourceType"]);
+$w->characters ("10");
+$w->endTag ();
+$w->startTag ([$rasd_ns, "ResourceSubType"]);
+$w->characters ("E1000");
+$w->endTag ();
+$w->endTag ("Item");
+
 for ($i = 0; $i < @disks; ++$i)
 {
     my $href = $disks[$i];
