@@ -31,30 +31,20 @@ use Sys::Guestfs;
 
 =head1 NAME
 
-import-to-ovirt.pl - Import virtual machine disk image to RHEV or oVirt
+import2vbox - Import virtual machine disk image to VirtualBox
 
 =head1 SYNOPSIS
-
- sudo ./import-to-ovirt.pl disk.img server:/esd
 
  sudo ./import-to-ovirt.pl disk.img /esd_mountpoint
 
 =head1 IMPORTANT NOTES
-
-In the latest oVirt/RHEV/RHV there is a GUI option to import disks.
-You B<do not need to use this script> if you are using a sufficiently
-new version of oVirt.
-
-This tool should B<only> be used if the guest can already run on KVM.
-
-B<If you need to convert the guest from some foreign hypervisor, like VMware, Xen or Hyper-V, you should use L<virt-v2v(1)> instead.>
 
 =head1 EXAMPLES
 
 Import a KVM guest to the Export Storage Domain of your RHEV or oVirt
 system.  The NFS mount of the Export Storage Domain is C<server:/esd>.
 
- sudo ./import-to-ovirt.pl disk.img server:/esd
+ sudo ./import-to-ovirt.pl disk.img
 
 Import a KVM guest to an already-mounted Export Storage Domain:
 
