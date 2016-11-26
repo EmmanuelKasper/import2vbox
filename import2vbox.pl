@@ -551,23 +551,10 @@ $w->characters ("20");
 $w->endTag ();
 $w->endTag ("Item");
 
-
 $w->startTag ("Item");
-$w->startTag ([$rasd_ns, "Caption"]);
-$w->characters ("USB Controller");
+$w->startTag ([$rasd_ns, "AutomaticAllocation"]);
+$w->characters ("true");
 $w->endTag ();
-$w->startTag ([$rasd_ns, "InstanceId"]);
-$w->characters ("4");
-$w->endTag ();
-$w->startTag ([$rasd_ns, "ResourceType"]);
-$w->characters ("23");
-$w->endTag ();
-$w->startTag ([$rasd_ns, "UsbPolicy"]);
-$w->characters ("Disabled");
-$w->endTag ();
-$w->endTag ("Item");
-
-$w->startTag ("Item");
 $w->startTag ([$rasd_ns, "Caption"]);
 $w->characters ("Ethernet adapter on 'NAT'");
 $w->endTag ();
@@ -578,7 +565,7 @@ $w->startTag ([$rasd_ns, "ElementName"]);
 $w->characters ("Ethernet Adapter on 'NAT'");
 $w->endTag ();
 $w->startTag ([$rasd_ns, "InstanceId"]);
-$w->characters ("5");
+$w->characters ("4");
 $w->endTag ();
 $w->startTag ([$rasd_ns, "ResourceType"]);
 $w->characters ("10");
@@ -598,7 +585,7 @@ for ($i = 0; $i < @disks; ++$i)
     $w->characters ("Drive " . ($i+1));
     $w->endTag ();
     $w->startTag ([$rasd_ns, "InstanceId"]);
-    $w->characters (4 + $i);
+    $w->characters (5 + $i);
     $w->endTag ();
     $w->startTag ([$rasd_ns, "ResourceType"]);
     $w->characters ("17");
