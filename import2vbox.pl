@@ -35,92 +35,32 @@ import2vbox - Import virtual machine disk image to VirtualBox
 
 =head1 SYNOPSIS
 
- sudo ./import-to-ovirt.pl disk.img /esd_mountpoint
+ ./import2vbox.pl disk.img
 
 =head1 IMPORTANT NOTES
 
-=head1 EXAMPLES
-
-Import a KVM guest to the Export Storage Domain of your RHEV or oVirt
-system.  The NFS mount of the Export Storage Domain is C<server:/esd>.
-
- sudo ./import-to-ovirt.pl disk.img
-
-Import a KVM guest to an already-mounted Export Storage Domain:
-
- sudo ./import-to-ovirt.pl disk.img /esd_mountpoint
-
-If the single guest has multiple disks, use:
-
- sudo ./import-to-ovirt.pl disk1.img [disk2.img [...]] server:/esd
-
-If you are importing multiple guests then you must import each one
-separately.  Do not use multiple disk parameters if each disk comes
-from a different guest.
-
-=head1 DESCRIPTION
-
-This is a command line script for importing a KVM virtual machine to
-RHEV or oVirt.  The script assumes that the guest can already run on
-KVM, ie. that it was previously running on KVM and has the required
-drivers.  If the guest comes from a foreign hypervisor like VMware,
-Xen or Hyper-V, use L<virt-v2v(1)> instead.
-
-This script only imports the guest into the oVirt "Export Storage
-Domain" (ESD).  After the import is complete, you must then go to the
-oVirt user interface, go to the C<Storage> tab, select the right ESD,
-and use C<VM Import> to take the guest from the ESD to the data
-domain.  This process is outside the scope of this script, but could
-be automated using the oVirt API.
+This is a command line script for generating a OVF file from a vmdk disk image,
+so that disk image(s) and OVF can be imported in VirtualBox.
+The script assumes that the guest already has drivers for a SATA controller
+and an Intel E1000 NIC, because this is what will be presented to the VM.
 
 =head2 Basic usage
 
 Basic usage is just:
 
- ./import-to-ovirt.pl [list of disks] server:/esd
-
-If you are unclear about the C<server:/esd> parameter, go to the oVirt
-Storage tab, select the C<Domain Type> C<Export> and look in the
-C<General> tab under C<Path>.
-
-If the ESD is already mounted on your machine (or if you are using a
-non-NFS ESD), then you can supply a direct path to the mountpoint
-instead:
-
- ./import-to-ovirt.pl [list of disks] /esd_mountpoint
+ ./import2vbox.pl [list of disks] 
 
 The list of disks should all belong to a single guest (most guests
 will only have a single disk).  If you want to import multiple guests,
 you must run the script multiple times.
 
-Importing from OVA etc is not supported.  Try C<ovirt-image-uploader>
-(if the OVA was exported from oVirt), or L<virt-v2v(1)> (if the OVA
-was exported from VMware).
-
-=head2 Permissions
-
-You probably need to run this script as root, because it has to create
-files on the ESD as a special C<vdsm> user (UID:GID C<36:36>).
-
-It may also be possible to run the script as the vdsm user.  But if
-you run it as some non-root, non-vdsm user, then oVirt won't be able
-to read the data from the ESD and will give an error.
-
-NFS "root squash" should be turned off on the NFS server, since it
-stops us from creating files as the vdsm user.  Also NFSv4 may not
-work unless you have set up idmap correctly (good luck!)
-
 =head2 Network card and disk model
 
 (See also L</TO DO> below)
 
-Currently this script doesn't add a network card to the guest.  You
-will need to add one yourself in the C<VM Import> tab when importing
-the guest.
-
-Similarly, the script always adds the disks as virtio-blk devices.  If
-the guest is expecting IDE, SCSI or virtio-scsi, you will need to
-change the disk type when importing the guest.
+This scripts adds an Intel E1000 network card and a SATA disk controller
+to the hardware of the virtual machine. Popular OSes released after 2003
+should all include drivers for this hardware.
 
 =head1 OPTIONS
 
