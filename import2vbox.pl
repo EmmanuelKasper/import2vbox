@@ -319,33 +319,33 @@ END {
 my $i;
 my $time = time ();
 my $iso_time = strftime ("%Y/%m/%d %H:%M:%S", gmtime ());
-my $imported_by = "Imported by import-to-ovirt.pl";
-my @real_sizes;
+my $imported_by = "Imported by import2vbox.pl";
+#my @real_sizes;
 
-for ($i = 0; $i < @disks; ++$i) {
-    my $input_file = $disks[$i];
-    my $image_uuid = $image_uuids[$i];
-    my $path = "$files_output_dir/$image_uuid";
-    mkdir ($path, 0755) or die "mkdir: $path: $!";
-    my $output_file = "$files_output_dir/$image_uuid/".$vol_uuids[$i];
-    open (my $fh, ">", $output_file) or die "open: $output_file: $!";
-    print "Copying $input_file ...\n";
-    my @compat_option = ();
-    if ($qemu_img_supports_compat) {
-        @compat_option = ("-o", "compat=0.10") # for RHEL 6-based ovirt nodes
-    }
+#for ($i = 0; $i < @disks; ++$i) {
+    # my $input_file = $disks[$i];
+    # my $image_uuid = $image_uuids[$i];
+    # my $path = "$files_output_dir/$image_uuid";
+    # mkdir ($path, 0755) or die "mkdir: $path: $!";
+    # my $output_file = "$files_output_dir/$image_uuid/".$vol_uuids[$i];
+    # open (my $fh, ">", $output_file) or die "open: $output_file: $!";
+    # print "Copying $input_file ...\n";
+    # my @compat_option = ();
+    # if ($qemu_img_supports_compat) {
+    #    @compat_option = ("-o", "compat=0.10") # for RHEL 6-based ovirt nodes
+    #}
     #system ("qemu-img", "convert", "-p",
     #        $input_file,
     #        "-O", "qcow2",
     #        @compat_option,
     #        $output_file) == 0
     #           or die "qemu-img: $input_file: failed (status $?)";
-    print "calling qemu ....\n";
-    push @real_sizes, -s $output_file;
+    #print "calling qemu ....\n";
+    #push @real_sizes, -s $output_file;
 
-    my $size_in_sectors = $virtual_sizes[$i] / 512;
+    #my $size_in_sectors = $virtual_sizes[$i] / 512;
 
-    }
+#    }
 # Create the OVF.
 print "Creating OVF metadata ...\n";
 
