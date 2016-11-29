@@ -645,9 +645,8 @@ print $ovf_fh $ovf;
 $delete_output_on_exit = 0;
 print "\n";
 print "OVF written to $ovf_file\n";
-print "\n";
-print "Import finished without errors.  Now go to the Storage tab ->\n";
-print "Export Storage Domain -> VM Import, and import the guest.\n";
+print "In Virtualbox go to File -> Import a virtual appliance\n";
+print "and select the ovf file\n";
 exit 0;
 
 __END__
