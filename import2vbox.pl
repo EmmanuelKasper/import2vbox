@@ -582,8 +582,12 @@ for ($i = 0; $i < @disks; ++$i)
     $w->startTag ("Item");
 
     $w->startTag ([$rasd_ns, "Caption"]);
-    $w->characters ("Drive " . ($i+1));
+    $w->characters ("Drive " . ($i));
     $w->endTag ();
+    $w->startTag ([$rasd_ns, "AddressOnParent"]);
+    $w->characters (($i));
+    $w->endTag ();
+
     $w->startTag ([$rasd_ns, "InstanceId"]);
     $w->characters (5 + $i);
     $w->endTag ();
