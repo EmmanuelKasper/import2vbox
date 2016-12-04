@@ -434,39 +434,11 @@ $w->startTag ("Content",
 $w->startTag ("Name");
 $w->characters ($name);
 $w->endTag ();
-$w->startTag ("TemplateId");
-$w->characters ("00000000-0000-0000-0000-000000000000");
-$w->endTag ();
-$w->startTag ("TemplateName");
-$w->characters ("Blank");
-$w->endTag ();
 $w->startTag ("Description");
 $w->characters ($imported_by);
 $w->endTag ();
-$w->startTag ("Domain");
-$w->endTag ();
-$w->startTag ("CreationDate");
-$w->characters ($iso_time);
-$w->endTag ();
-$w->startTag ("IsInitilized"); # sic
-$w->characters ("True");
-$w->endTag ();
-$w->startTag ("IsAutoSuspend");
-$w->characters ("False");
-$w->endTag ();
-$w->startTag ("TimeZone");
-$w->endTag ();
-$w->startTag ("IsStateless");
-$w->characters ("False");
-$w->endTag ();
-$w->startTag ("Origin");
-$w->characters ("0");
-$w->endTag ();
 $w->startTag ("VmType");
 $w->characters ($vmtype);
-$w->endTag ();
-$w->startTag ("DefaultDisplayType");
-$w->characters ("1"); # qxl
 $w->endTag ();
 
 $w->startTag ("Section",
@@ -604,26 +576,6 @@ for ($i = 0; $i < @disks; ++$i)
     $w->endTag ();
     $w->startTag ([$rasd_ns, "Parent"]);
     $w->characters ("3");
-    $w->endTag ();
-    $w->startTag ([$rasd_ns, "Template"]);
-    $w->characters ("00000000-0000-0000-0000-000000000000");
-    $w->endTag ();
-    $w->startTag ([$rasd_ns, "ApplicationList"]);
-    $w->endTag ();
-    $w->startTag ([$rasd_ns, "StorageId"]);
-    $w->characters ($files_output_dir);
-    $w->endTag ();
-    $w->startTag ([$rasd_ns, "StoragePoolId"]);
-    $w->characters ("00000000-0000-0000-0000-000000000000");
-    $w->endTag ();
-    $w->startTag ([$rasd_ns, "CreationDate"]);
-    $w->characters ($iso_time);
-    $w->endTag ();
-    $w->startTag ([$rasd_ns, "LastModified"]);
-    $w->characters ($iso_time);
-    $w->endTag ();
-    $w->startTag ([$rasd_ns, "last_modified_date"]);
-    $w->characters ($iso_time);
     $w->endTag ();
 
     $w->endTag ("Item");
