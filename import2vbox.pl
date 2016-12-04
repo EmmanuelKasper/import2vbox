@@ -372,6 +372,7 @@ my $w = XML::Writer->new (
     DATA_INDENT => 4,
 );
 
+$w->xmlDecl("UTF-8");
 $w->startTag ([$ovf_ns, "Envelope"],
               [$ovf_ns, "version"] => "0.9");
 $w->comment ($imported_by);
