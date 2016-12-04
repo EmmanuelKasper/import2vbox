@@ -43,7 +43,7 @@ import2vbox - Import virtual machine disk image to VirtualBox
 This is a command line script for generating a OVF file from a vmdk disk image,
 so that disk image(s) and OVF can be imported in VirtualBox.
 The script assumes that the guest already has drivers for a SATA controller
-and an Intel E1000 NIC, because this is what will be presented to the VM.
+and an Intel PRO/1000 MT Desktop (82540EM), because this is what will be presented to the VM.
 
 =head2 Basic usage
 
@@ -59,7 +59,7 @@ you must run the script multiple times.
 
 (See also L</TO DO> below)
 
-This scripts adds an Intel E1000 network card and a SATA disk controller
+This scripts adds an Intel E1000 MT Desktop network card and a SATA disk controller
 to the hardware of the virtual machine. Popular OSes released after 2003
 should all include drivers for this hardware.
 
@@ -545,7 +545,7 @@ $w->startTag ([$rasd_ns, "ResourceType"]);
 $w->characters ("10");
 $w->endTag ();
 $w->startTag ([$rasd_ns, "ResourceSubType"]);
-$w->characters ("E1000");
+$w->characters ("E1000e");
 $w->endTag ();
 $w->endTag ("Item");
 
