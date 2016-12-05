@@ -36,7 +36,7 @@ import2vbox - Import virtual machine disk image to VirtualBox
 
 =head1 SYNOPSIS
 
- ./import2vbox.pl disk.img
+ ./import2vbox.pl disk.vmdk
 
 =head1 IMPORTANT NOTES
 
@@ -56,8 +56,6 @@ will only have a single disk).  If you want to import multiple guests,
 you must run the script multiple times.
 
 =head2 Network card and disk model
-
-(See also L</TO DO> below)
 
 This scripts adds an Intel E1000 MT Desktop network card and a SATA disk controller
 to the hardware of the virtual machine. Popular OSes released after 2003
@@ -609,41 +607,14 @@ __END__
 
 =over 4
 
-=item Network
-
-Add a network card to the OVF.  The problem is detecting what
-network devices the guest can support.
-
-=item Disk model
-
-Detect what disk models (eg. IDE, virtio-blk, virtio-scsi) the
-guest can support and add the correct type of disk.
-
 =back
 
 =head1 DEBUGGING IMPORT FAILURES
 
-When you export to the ESD, and then import that guest through the
-oVirt / RHEV-M UI, you may encounter an import failure.  Diagnosing
-these failures is infuriatingly difficult as the UI generally hides
-the true reason for the failure.
-
-There are two log files of interest.  The first is stored on the oVirt
-engine / RHEV-M server itself, and is called
-F</var/log/ovirt-engine/engine.log>
-
-The second file, which is the most useful, is found on the SPM host
-(SPM stands for "Storage Pool Manager").  This is a oVirt node that is
-elected to do all metadata modifications in the data center, such as
-image or snapshot creation.  You can find out which host is the
-current SPM from the "Hosts" tab "Spm Status" column.  Once you have
-located the SPM, log into it and grab the file
-F</var/log/vdsm/vdsm.log> which will contain detailed error messages
-from low-level commands.
+To be done
 
 =head1 SEE ALSO
 
-L<https://bugzilla.redhat.com/show_bug.cgi?id=998279>,
 L<https://bugzilla.redhat.com/show_bug.cgi?id=1049604>,
 L<virt-v2v(1)>,
 L<engine-image-uploader(8)>.
@@ -651,12 +622,14 @@ L<engine-image-uploader(8)>.
 =head1 AUTHOR
 
 Richard W.M. Jones <rjones@redhat.com>
+Emmanuel Kasper <emmanuel@libera.cc>
 
 =head1 COPYRIGHT
 
 Copyright (C) 2015 Richard W.M. Jones <rjones@redhat.com>
-
 Copyright (C) 2015 Red Hat Inc.
+Copyright (C) 2016 Emmanuel Kasper <emmanuel@libera.cc>
+
 
 =head1 LICENSE
 
