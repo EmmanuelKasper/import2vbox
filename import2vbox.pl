@@ -373,9 +373,10 @@ my $w = XML::Writer->new (
 );
 
 $w->xmlDecl("UTF-8");
+$w->comment ($imported_by);
+
 $w->startTag ([$ovf_ns, "Envelope"],
               [$ovf_ns, "version"] => "0.9");
-$w->comment ($imported_by);
 
 $w->startTag ("References");
 
