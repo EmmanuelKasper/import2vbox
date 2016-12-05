@@ -209,7 +209,7 @@ $g->close ();
 
 # http://schemas.dmtf.org/wbem/cim-html/2+/
 # and enum CIMOSType_T VBox/Main/include/ovfreader.h
-# Map inspection data to RHEV ostype.
+# Map inspection data to OVF ostype.
 my $ostype;
 if ($type eq "linux" && $distro eq "rhel") {
     if ($arch eq "x86_64") {
@@ -442,7 +442,7 @@ $w->characters ($vmtype);
 $w->endTag ();
 
 $w->startTag ("Section",
-              [$ovf_ns, "id"] => "96", #TODO: do not hardcode this
+              [$ovf_ns, "id"] => $ostype,
               [$ovf_ns, "required"] => "false",
               [$xsi_ns, "type"] => "ovf:OperatingSystemSection_Type");
 $w->startTag ("Info");
