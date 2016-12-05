@@ -219,11 +219,11 @@ if ($type eq "linux" && $distro eq "rhel") {
     }
 }
 elsif ($type eq "linux" && $distro eq "debian") {
-	if ($arch eq "x86_64") {
-		$ostype = 96
-	} else {
-		$ostype = 95
-	}
+    if ($arch eq "x86_64") {
+        $ostype = 96
+    } else {
+        $ostype = 95
+    }
 }
 elsif ($type eq "linux") {
     $ostype = "OtherLinux"
