@@ -596,8 +596,10 @@ print $ovf_fh $ovf;
 $delete_output_on_exit = 0;
 print "\n";
 print "OVF written to $ovf_file\n";
-print "In Virtualbox go to File -> Import a virtual appliance\n";
-print "and select the ovf file\n";
+print "In Virtualbox, go to File -> Import a virtual appliance\n";
+print "and select the ovf file.\n";
+print "Or import from the command line with: \n";
+print "\$ VBoxManage import $ovf_file\n";
 exit 0;
 
 __END__
