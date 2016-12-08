@@ -321,30 +321,29 @@ my $iso_time = strftime ("%Y/%m/%d %H:%M:%S", gmtime ());
 my $imported_by = "Imported by import2vbox.pl";
 #my @real_sizes;
 
-#for ($i = 0; $i < @disks; ++$i) {
-    # my $input_file = $disks[$i];
-    # my $image_uuid = $image_uuids[$i];
-    # my $path = "$files_output_dir/$image_uuid";
-    # mkdir ($path, 0755) or die "mkdir: $path: $!";
-    # my $output_file = "$files_output_dir/$image_uuid/".$vol_uuids[$i];
-    # open (my $fh, ">", $output_file) or die "open: $output_file: $!";
-    # print "Copying $input_file ...\n";
-    # my @compat_option = ();
-    # if ($qemu_img_supports_compat) {
-    #    @compat_option = ("-o", "compat=0.10") # for RHEL 6-based ovirt nodes
-    #}
-    #system ("qemu-img", "convert", "-p",
-    #        $input_file,
-    #        "-O", "qcow2",
-    #        @compat_option,
-    #        $output_file) == 0
-    #           or die "qemu-img: $input_file: failed (status $?)";
-    #print "calling qemu ....\n";
+my @converted_disks;
+for ($i = 0; $i < @disks; ++$i) {
+	my $input_file = $disks[$i];
+    my $output_file = $input_file =~ s/\..*$/\.vmdk/r;
+    open (my $fh, ">", $output_file) or die "open: $output_file: $!";
+    print "Copying $input_file ...\n";
+    my @compat_option = ();
+    if ($qemu_img_supports_compat) {
+        @compat_option = ("-o", "compat=0.10") # for RHEL 6-based ovirt nodes
+    }
+    system ("qemu-img", "convert", "-p",
+            $input_file,
+            "-O", "vmdk",
+#            @compat_option,
+            $output_file) == 0
+               or die "qemu-img: $input_file: failed (status $?)";
+    print "calling qemu ....\n";
+    push @converted_disks, $output_file;
     #push @real_sizes, -s $output_file;
 
     #my $size_in_sectors = $virtual_sizes[$i] / 512;
 
-#    }
+}
 # Create the OVF.
 print "Creating OVF metadata ...\n";
 
@@ -378,9 +377,9 @@ $w->startTag ([$ovf_ns, "Envelope"],
 
 $w->startTag ("References");
 
-for ($i = 0; $i < @disks; ++$i)
+for ($i = 0; $i < @converted_disks; ++$i)
 {
-    my $href = $disks[$i];
+    my $href = $converted_disks[$i];
     $w->startTag ("File",
                   [$ovf_ns, "href"] => $href,
                   [$ovf_ns, "id"] => $name . $i,
@@ -404,9 +403,9 @@ $w->startTag ("Info");
 $w->characters ("List of Virtual Disks");
 $w->endTag ();
 
-for ($i = 0; $i < @disks; ++$i)
+for ($i = 0; $i < @converted_disks; ++$i)
 {
-    my $href = $disks[$i];
+    my $href = $converted_disks[$i];
 
     my $boot_drive;
     if ($i == 0) {
