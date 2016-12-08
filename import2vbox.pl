@@ -279,7 +279,7 @@ my $files_output_dir = getcwd;
 #$files_output_dir =~ s{.*/}{};
 
 # Start the import.
-print "Importing $product_name to $output...\n";
+print "Importing $type $distro $arch $product_name ...\n";
 
 # Generate a UUID.
 sub uuidgen
@@ -322,19 +322,22 @@ my $imported_by = "Imported by import2vbox.pl";
 #my @real_sizes;
 
 my @converted_disks;
+my $disk_format = "vmdk";
+
 for ($i = 0; $i < @disks; ++$i) {
 	my $input_file = $disks[$i];
-    my $output_file = $input_file =~ s/\..*$/\.vmdk/r;
+    my $output_file = $input_file =~ s/\..*$/\.\Q$disk_format\E/r;
     open (my $fh, ">", $output_file) or die "open: $output_file: $!";
-    print "Copying $input_file ...\n";
+    print "Converting $input_file to $output_file ...\n ";
     my @compat_option = ();
     if ($qemu_img_supports_compat) {
         @compat_option = ("-o", "compat=0.10") # for RHEL 6-based ovirt nodes
     }
     system ("qemu-img", "convert", "-p",
-            $input_file,
-            "-O", "vmdk",
+            "-O", "$disk_format",
 #            @compat_option,
+			"-o", "compat6",
+            $input_file,
             $output_file) == 0
                or die "qemu-img: $input_file: failed (status $?)";
     print "calling qemu ....\n";
