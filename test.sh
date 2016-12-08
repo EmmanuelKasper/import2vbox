@@ -1,6 +1,15 @@
 #!/bin/sh
+set -e
+set -x
 
-./import2vbox.pl source.vmdk
-VBoxManage import source.ovf
-VBoxManage showvminfo source | sed 1q
-VBoxManage unregistervm source --delete
+if ! [ $1 ] ; then
+    echo "usage: $0 raw disk image"
+    exit 1
+fi
+
+shortname=$(echo $1 | sed 's/\..*$//')
+
+./import2vbox.pl ${shortname}.raw
+VBoxManage import ${shortname}.ovf
+VBoxManage showvminfo $shortname | sed 1q
+#VBoxManage unregistervm $shortname --delete
