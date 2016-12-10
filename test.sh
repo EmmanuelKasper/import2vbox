@@ -9,7 +9,7 @@ fi
 
 shortname=$(echo $1 | sed 's/\..*$//')
 
-./import2vbox.pl ${shortname}.raw
+./import2vbox.pl $1
 VBoxManage import ${shortname}.ovf
 VBoxManage showvminfo $shortname | sed 1q
 #VBoxManage unregistervm $shortname --delete
