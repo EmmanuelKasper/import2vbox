@@ -342,7 +342,6 @@ for ($i = 0; $i < @disks; ++$i) {
     system ("qemu-img", "convert", "-p",
             "-O", "$disk_format",
 #            @compat_option,
-			"-o", "compat6",
             $input_file,
             $output_file) == 0
                or die "qemu-img: $input_file: failed (status $?)";
