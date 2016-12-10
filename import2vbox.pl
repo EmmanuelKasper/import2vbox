@@ -325,7 +325,14 @@ my @converted_disks;
 my $disk_format = "vmdk";
 
 for ($i = 0; $i < @disks; ++$i) {
-	my $input_file = $disks[$i];
+    my $input_file = $disks[$i];
+
+    if ($input_file =~ /\.vmdk$/) {
+        print "not converting $input_file \n";
+        push @converted_disks, $input_file;
+        next;
+    }
+
     my $output_file = $input_file =~ s/\..*$/\.\Q$disk_format\E/r;
     open (my $fh, ">", $output_file) or die "open: $output_file: $!";
     print "Converting $input_file to $output_file ...\n ";
