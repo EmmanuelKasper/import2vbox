@@ -304,13 +304,13 @@ foreach (@disks) {
 # Make sure the output is deleted on unsuccessful exit.  We set
 # $delete_output_on_exit to false at the end of the script.
 my $delete_output_on_exit = 1;
+my @converted_disks;
 END {
     if ($delete_output_on_exit) {
-        # Can't use run_as_vdsm in an END{} block.
-        foreach (@image_uuids) {
+        foreach my $disk (@converted_disks) {
             print ("rm", "-rf", "$files_output_dir/images/$_\n");
+            unlink $disk;
         }
-        print ("rm", "-rf", "$files_output_dir/master/vms/$vm_uuid\n");
     }
 };
 
@@ -321,7 +321,6 @@ my $iso_time = strftime ("%Y/%m/%d %H:%M:%S", gmtime ());
 my $imported_by = "Imported by import2vbox.pl";
 #my @real_sizes;
 
-my @converted_disks;
 my $disk_format = "vmdk";
 
 for ($i = 0; $i < @disks; ++$i) {
