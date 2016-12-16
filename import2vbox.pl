@@ -36,11 +36,11 @@ import2vbox - Import virtual machine disk image to VirtualBox
 
 =head1 SYNOPSIS
 
- ./import2vbox.pl disk.vmdk
+ ./import2vbox.pl { disk.vmdk | disk.raw }
 
 =head1 IMPORTANT NOTES
 
-This is a command line script for generating a OVF file from a vmdk disk image,
+This is a command line script for generating a OVF file from a vmdk or raw disk image,
 so that disk image(s) and OVF can be imported in VirtualBox.
 The script assumes that the guest already has drivers for a SATA controller
 and an Intel PRO/1000 MT Desktop (82540EM), because this is what will be presented to the VM.
