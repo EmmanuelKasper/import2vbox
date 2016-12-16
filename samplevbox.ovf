@@ -74,29 +74,32 @@
         <rasd:ResourceType>10</rasd:ResourceType>
       </Item>
     </VirtualHardwareSection>
-    <vbox:Machine ovf:required="false" version="1.16-linux" uuid="{4b8d1ee9-1aff-4b80-9daf-fdb4cc22ec35}" name="jessie" OSType="Debian_64" snapshotFolder="Snapshots" lastStateChange="2016-09-29T17:39:17Z">
+    <vbox:Machine ovf:required="false" version="1.16-linux" uuid="{4b8d1ee9-1aff-4b80-9daf-fdb4cc22ec35}" name="jessie" OSType="Debian_64">
       <ovf:Info>Complete VirtualBox machine configuration in VirtualBox format</ovf:Info>
       <Hardware>
-        <CPU>
-        <!-- TODO: here we need to match the virtual cpu of the "real" ovf section -->
+        <!-- TODO: here we need to match the cpus of the VirtualHardwareSection section -->
+        <CPU count="2">
         </CPU>
         <BIOS>
         </BIOS>
+        <!-- TODO: here we need to match the ram of the VirtualHardwareSection section -->
         <Memory RAMSize="512"/>
         <Network>
-          <Adapter slot="0" enabled="true" MACAddress="" type="82540EM">
+          <Adapter slot="0" enabled="true" type="82540EM">
             <NAT/>
           </Adapter>
         </Network>
-        <AudioAdapter driver="Pulse" enabled="false"/>
+<!--         <AudioAdapter driver="Pulse" enabled="false"/> -->
       </Hardware>
       <StorageControllers>
-        <StorageController name="SATA Controller" type="AHCI" PortCount="1" useHostIOCache="false" Bootable="true" IDE0MasterEmulationPort="0" IDE0SlaveEmulationPort="1" IDE1MasterEmulationPort="2" IDE1SlaveEmulationPort="3">
+      <!-- TODO: portCount should equal the total number of disks -->
+        <StorageController name="SATA Controller" type="AHCI" PortCount="1">
           <AttachedDevice type="HardDisk" hotpluggable="false" port="0" device="0">
+          <!-- TODO: here we need to match the disk uids of the DiskSection section -->
             <Image uuid="{248d1114-2a12-43a1-8517-d54e2f8472c1}"/>
           </AttachedDevice>
         </StorageController>
-        <StorageController name="Floppy Controller Controller" type="I82078" PortCount="1" useHostIOCache="true" Bootable="true"/>
+        <StorageController name="Floppy Controller Controller" type="I82078" PortCount="1"/>
       </StorageControllers>
     </vbox:Machine>
   </VirtualSystem>
