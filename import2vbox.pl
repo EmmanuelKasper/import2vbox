@@ -142,12 +142,7 @@ if (@ARGV < 1) {
     die "Use '$0 --man' to display the manual.\n"
 }
 
-#my @disks = @ARGV[0 .. $#ARGV-1];
-my @disks;
-foreach my $disk (@ARGV) {
-    push @disks, $disk
-}
-my $output = $ARGV[$#ARGV];
+my @disks = @ARGV[0 .. $#ARGV];
 
 if (!defined $name) {
     $name = $disks[0];
