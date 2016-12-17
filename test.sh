@@ -12,4 +12,4 @@ shortname=$(echo $1 | sed 's/\..*$//')
 ./import2vbox.pl $1
 VBoxManage import ${shortname}.ovf
 VBoxManage showvminfo $shortname | sed 1q
-#VBoxManage unregistervm $shortname --delete
+VBoxManage unregistervm $shortname --delete
