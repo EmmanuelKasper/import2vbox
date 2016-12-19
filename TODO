@@ -1,2 +1,5 @@
 * add description field
 * improve OS detection
+# TODO: report this upstream, looks like a bug
+my $major_version = $g->inspect_get_major_version ($root); #7
+my $minor_version = $g->inspect_get_major_version ($root); #7
