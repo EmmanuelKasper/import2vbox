@@ -353,7 +353,7 @@ print "Creating OVF metadata ...\n";
 my $rasd_ns = "http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_ResourceAllocationSettingData";
 my $vssd_ns = "http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_VirtualSystemSettingData";
 my $xsi_ns = "http://www.w3.org/2001/XMLSchema-instance";
-my $ovf_ns = "http://schemas.dmtf.org/ovf/envelope/1/";
+my $ovf_ns = "http://schemas.dmtf.org/ovf/envelope/1";
 my %prefix_map = (
     $rasd_ns => "rasd",
     $vssd_ns => "vssd",
@@ -376,7 +376,7 @@ $w->xmlDecl("UTF-8");
 $w->comment ($imported_by);
 
 $w->startTag ([$ovf_ns, "Envelope"],
-              [$ovf_ns, "version"] => "0.9");
+              [$ovf_ns, "version"] => "1.0");
 
 $w->startTag ("References");
 
@@ -393,15 +393,15 @@ for ($i = 0; $i < @converted_disks; ++$i)
 
 $w->endTag ();
 
-$w->startTag ("Section",
-              [$xsi_ns, "type"] => "ovf:NetworkSection_Type");
+$w->startTag ("NetworkSection");
 $w->startTag ("Info");
 $w->characters ("List of networks");
 $w->endTag ();
+$w->startTag ("Network", [$ovf_ns, "name"] => "NAT");
+$w->endTag ();
 $w->endTag ();
 
-$w->startTag ("Section",
-              [$xsi_ns, "type"] => "ovf:DiskSection_Type");
+$w->startTag ("DiskSection");
 $w->startTag ("Info");
 $w->characters ("List of Virtual Disks");
 $w->endTag ();
@@ -429,23 +429,18 @@ for ($i = 0; $i < @converted_disks; ++$i)
 
 $w->endTag ();
 
-$w->startTag ("Content",
-              [$ovf_ns, "id"] => "$name",
-              [$xsi_ns, "type"] => "ovf:VirtualSystem_Type");
-$w->startTag ("Name");
+$w->startTag ("VirtualSystem",
+              [$ovf_ns, "id"] => "$name");
+$w->startTag ("Info");
 $w->characters ($name);
 $w->endTag ();
-$w->startTag ("Description");
-$w->characters ($imported_by);
-$w->endTag ();
-$w->startTag ("VmType");
-$w->characters ($vmtype);
-$w->endTag ();
+#$w->startTag ("Description");
+#$w->characters ($imported_by);
+#$w->endTag ();
 
-$w->startTag ("Section",
+$w->startTag ("OperatingSystemSection",
               [$ovf_ns, "id"] => $ostype,
-              [$ovf_ns, "required"] => "false",
-              [$xsi_ns, "type"] => "ovf:OperatingSystemSection_Type");
+              [$ovf_ns, "required"] => "false");
 $w->startTag ("Info");
 $w->characters ($product_name);
 $w->endTag ();
@@ -454,8 +449,7 @@ $w->characters (join (' ', $distro, $type, $arch, $product_name));
 $w->endTag ();
 $w->endTag ();
 
-$w->startTag ("Section",
-              [$xsi_ns, "type"] => "ovf:VirtualHardwareSection_Type");
+$w->startTag ("VirtualHardwareSection");
 $w->startTag ("Info");
 $w->characters (sprintf ("%d CPU, %d Memory", $vcpus, $memory_mb));
 $w->endTag ();
@@ -473,15 +467,15 @@ $w->endTag ();
 $w->startTag ([$rasd_ns, "ResourceType"]);
 $w->characters ("3");
 $w->endTag ();
-$w->startTag ([$rasd_ns, "num_of_sockets"]);
+$w->startTag ([$rasd_ns, "VirtualQuantity"]);
 $w->characters ($vcpus);
-$w->endTag ();
-$w->startTag ([$rasd_ns, "cpu_per_socket"]);
-$w->characters (1);
 $w->endTag ();
 $w->endTag ("Item");
 
 $w->startTag ("Item");
+$w->startTag ([$rasd_ns, "AllocationUnits"]);
+$w->characters ("byte * 2^20");
+$w->endTag ();
 $w->startTag ([$rasd_ns, "Caption"]);
 $w->characters (sprintf ("%d MB of memory", $memory_mb));
 $w->endTag ();
@@ -494,20 +488,17 @@ $w->endTag ();
 $w->startTag ([$rasd_ns, "ResourceType"]);
 $w->characters ("4");
 $w->endTag ();
-$w->startTag ([$rasd_ns, "AllocationUnits"]);
-$w->characters ("MegaBytes");
-$w->endTag ();
 $w->startTag ([$rasd_ns, "VirtualQuantity"]);
 $w->characters ($memory_mb);
 $w->endTag ();
 $w->endTag ("Item");
 
 $w->startTag ("Item");
-$w->startTag ([$rasd_ns, "Caption"]);
-$w->characters ("sataController0");
-$w->endTag ();
 $w->startTag ([$rasd_ns, "Address"]);
 $w->characters ("0");
+$w->endTag ();
+$w->startTag ([$rasd_ns, "Caption"]);
+$w->characters ("sataController0");
 $w->endTag ();
 $w->startTag ([$rasd_ns, "Description"]);
 $w->characters ("SATA Controller");
@@ -542,11 +533,11 @@ $w->endTag ();
 $w->startTag ([$rasd_ns, "InstanceId"]);
 $w->characters ("4");
 $w->endTag ();
-$w->startTag ([$rasd_ns, "ResourceType"]);
-$w->characters ("10");
-$w->endTag ();
 $w->startTag ([$rasd_ns, "ResourceSubType"]);
 $w->characters ("E1000e");
+$w->endTag ();
+$w->startTag ([$rasd_ns, "ResourceType"]);
+$w->characters ("10");
 $w->endTag ();
 $w->endTag ("Item");
 
@@ -555,36 +546,33 @@ for ($i = 0; $i < @disks; ++$i)
     my $href = $disks[$i];
 
     $w->startTag ("Item");
-
-    $w->startTag ([$rasd_ns, "Caption"]);
-    $w->characters ("Drive " . ($i));
-    $w->endTag ();
     $w->startTag ([$rasd_ns, "AddressOnParent"]);
     $w->characters (($i));
     $w->endTag ();
-
-    $w->startTag ([$rasd_ns, "InstanceId"]);
-    $w->characters (5 + $i);
-    $w->endTag ();
-    $w->startTag ([$rasd_ns, "ResourceType"]);
-    $w->characters ("17");
-    $w->endTag ();
-    $w->startTag ("Type");
-    $w->characters ("disk");
+    $w->startTag ([$rasd_ns, "ElementName"]);
+    $w->characters ("Drive " . ($i));
     $w->endTag ();
     $w->startTag ([$rasd_ns, "HostResource"]);
     $w->characters ("ovf:/disk/" . "vmdisk" . $i);
     $w->endTag ();
+    $w->startTag ([$rasd_ns, "InstanceId"]);
+    $w->characters (5 + $i);
+    $w->endTag ();
     $w->startTag ([$rasd_ns, "Parent"]);
     $w->characters ("3");
     $w->endTag ();
-
+    $w->startTag ([$rasd_ns, "ResourceType"]);
+    $w->characters ("17");
+    $w->endTag ();
+#    $w->startTag ("Type");
+#    $w->characters ("disk");
+#    $w->endTag ();
     $w->endTag ("Item");
 }
 
-$w->endTag ("Section"); # ovf:VirtualHardwareSection_Type
+$w->endTag (); # ovf:VirtualHardwareSection
 
-$w->endTag ("Content");
+$w->endTag (); #VirtualSystem
 
 $w->endTag ([$ovf_ns, "Envelope"]);
 $w->end ();
