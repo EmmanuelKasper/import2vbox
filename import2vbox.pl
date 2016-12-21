@@ -267,10 +267,7 @@ sub uuidgen
 
 # Generate some random UUIDs.
 my $vm_uuid = uuidgen ();
-my @image_uuids;
-foreach (@disks) {
-    push @image_uuids, uuidgen ();
-}
+
 my @vol_uuids;
 foreach (@disks) {
     push @vol_uuids, uuidgen ();
@@ -337,11 +334,13 @@ my $rasd_ns = "http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_ResourceAll
 my $vssd_ns = "http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_VirtualSystemSettingData";
 my $xsi_ns = "http://www.w3.org/2001/XMLSchema-instance";
 my $ovf_ns = "http://schemas.dmtf.org/ovf/envelope/1";
+my $vbox_ns = "http://www.virtualbox.org/ovf/machine";
 my %prefix_map = (
     $rasd_ns => "rasd",
     $vssd_ns => "vssd",
     $xsi_ns => "xsi",
     $ovf_ns => "ovf",
+    $vbox_ns => "vbox"
 );
 my @forced_ns_decls = keys %prefix_map;
 
@@ -381,6 +380,9 @@ $w->startTag ("Info");
 $w->characters ("List of networks");
 $w->endTag ();
 $w->startTag ("Network", [$ovf_ns, "name"] => "NAT");
+$w->startTag("Description");
+$w->characters ("NAT network used by this VM");
+$w->endTag ();
 $w->endTag ();
 $w->endTag ();
 
@@ -406,7 +408,8 @@ for ($i = 0; $i < @converted_disks; ++$i)
                   [$ovf_ns, "fileRef"] => $name . $i,
                   [$ovf_ns, "format"] => "http://en.wikipedia.org/wiki/Byte",
                   [$ovf_ns, "disk-type"] => "System",
-                  [$ovf_ns, "boot"] => $boot_drive);
+                  [$ovf_ns, "boot"] => $boot_drive,
+                  [$vbox_ns, "uuid"] => $vol_uuids[$i]);
     $w->endTag ();
 }
 
@@ -517,7 +520,7 @@ $w->startTag ([$rasd_ns, "InstanceId"]);
 $w->characters ("4");
 $w->endTag ();
 $w->startTag ([$rasd_ns, "ResourceSubType"]);
-$w->characters ("E1000e");
+$w->characters ("E1000");
 $w->endTag ();
 $w->startTag ([$rasd_ns, "ResourceType"]);
 $w->characters ("10");
@@ -551,6 +554,44 @@ for ($i = 0; $i < @disks; ++$i)
 }
 
 $w->endTag (); # ovf:VirtualHardwareSection
+
+# Add a VirtualBox descriptor, an unfornate duplicate of the OVF descriptor
+# this is needed because of https://github.com/andsens/bootstrap-vz/issues/247
+$w->startTag([$vbox_ns, "Machine"],
+				[$ovf_ns, "required"]=> "false",
+                version => '1.16-linux',
+				uuid => "{$vm_uuid}",
+				name => $name
+			 );
+
+	$w->startTag([$ovf_ns, "Info"]);
+	$w->characters("Extra Virtual Machine Configuration in VirtualBoxFormat");
+	$w->endTag();
+
+	$w->startTag("Hardware");
+	$w->startTag("CPU", count => $vcpus);
+	$w->endTag();
+	$w->startTag("BIOS");
+	$w->endTag();
+	$w->emptyTag("Memory", RAMSize => $memory_mb);
+	$w->startTag("Network");
+	$w->startTag("Adapter", slot => "0", enabled => "true", type => "82540EM");
+	$w->emptyTag("NAT");
+	$w->endTag();
+	$w->endTag();
+	$w->endTag();
+	$w->startTag("StorageControllers");
+	$w->startTag("StorageController", name => "SATA Controller", type=> "AHCI", PortCount => scalar @converted_disks);
+	for ($i = 0; $i < @converted_disks; $i++) {
+	    $w->startTag("AttachedDevice", type=>"HardDisk", hotpluggable=>"false",
+	                port => $i, device => $i);
+	    $w->emptyTag("Image", uuid => "{$vol_uuids[$i]}");
+	    $w->endTag();
+    }
+	$w->endTag();
+	$w->endTag(); # storage controllers
+
+$w->endTag(); #vbox:machine
 
 $w->endTag (); #VirtualSystem
 
