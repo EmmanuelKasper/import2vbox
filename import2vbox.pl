@@ -276,15 +276,18 @@ foreach (@disks) {
     push @vol_uuids, uuidgen ();
 }
 
-# Make sure the output is deleted on unsuccessful exit.  We set
+# Make sure the converted disk output is deleted on unsuccessful exit.  We set
 # $delete_output_on_exit to false at the end of the script.
 my $delete_output_on_exit = 1;
 my @converted_disks;
 END {
     if ($delete_output_on_exit) {
-        foreach my $disk (@converted_disks) {
-            print ("rm", "-rf", "$files_output_dir/images/$_\n");
-            unlink $disk;
+        my $i;
+        for ($i = 0; $i < @converted_disks; $i++) {
+            if ($converted_disks[$i] ne $disks[$i]) {
+                print ("# rm", " $converted_disks[$i]\n");
+                unlink $converted_disks[$i];
+            }
         }
     }
 };
