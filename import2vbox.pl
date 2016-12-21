@@ -108,17 +108,6 @@ Set the number of virtual CPUs.  The default is 1.
 
 =cut
 
-my $vmtype = "Desktop";
-
-=item B<--vmtype> Desktop
-
-=item B<--vmtype> Server
-
-Set the VmType field in the OVF.  It must be C<Desktop> or
-C<Server>.  The default is C<Desktop>.
-
-=cut
-
 =back
 
 =cut
@@ -130,7 +119,6 @@ GetOptions ("help|?" => \$help,
             "memory=i" => \$memory_mb,
             "name=s" => \$name,
             "vcpus=i" => \$vcpus,
-            "vmtype=s" => \$vmtype,
     )
     or die "$0: unknown command line option\n";
 
@@ -148,14 +136,6 @@ if (!defined $name) {
     $name = $disks[0];
     $name =~ s{.*/}{};
     $name =~ s{\.[^.]+}{};
-}
-
-if ($vmtype =~ /^Desktop$/i) {
-    $vmtype = 0;
-} elsif ($vmtype =~ /^Server$/i) {
-    $vmtype = 1;
-} else {
-    die "$0: --vmtype parameter must be 'Desktop' or 'Server'\n"
 }
 
 # Does qemu-img generally work OK?
@@ -564,9 +544,6 @@ for ($i = 0; $i < @disks; ++$i)
     $w->startTag ([$rasd_ns, "ResourceType"]);
     $w->characters ("17");
     $w->endTag ();
-#    $w->startTag ("Type");
-#    $w->characters ("disk");
-#    $w->endTag ();
     $w->endTag ("Item");
 }
 
