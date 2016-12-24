@@ -168,7 +168,7 @@ my $type = $g->inspect_get_type ($root); #debian
 my $distro = $g->inspect_get_distro ($root); #linux
 my $arch = $g->inspect_get_arch ($root); #x86_64
 my $major_version = $g->inspect_get_major_version ($root); #7
-my $minor_version = $g->inspect_get_major_version ($root); #7
+my $minor_version = $g->inspect_get_minor_version ($root); #11
 my $product_name = $g->inspect_get_product_name ($root); #7.11
 my $product_variant = $g->inspect_get_product_variant ($root); #unknown
 
