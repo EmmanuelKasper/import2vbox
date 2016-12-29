@@ -10,7 +10,8 @@ fi
 shortname=$(echo $1 | sed 's/\..*$//')
 
 ./import2vbox.pl --vcpus 2 --memory 384 $1
-VBoxManage import --dry-run ${shortname}.ovf
+#VBoxManage import --dry-run ${shortname}.ovf
+VBoxManage import ${shortname}.ovf
 ovftool --verifyOnly ${shortname}.ovf
-#VBoxManage showvminfo $shortname | sed 1q
-#VBoxManage unregistervm $shortname --delete
+VBoxManage showvminfo $shortname --machinereadable | grep storagecontrollerportcount0
+VBoxManage unregistervm $shortname --delete
