@@ -589,6 +589,8 @@ $w->startTag([$vbox_ns, "Machine"],
 	    $w->endTag();
     }
 	$w->endTag();
+	# kernel waits up to three seconds for a floppy controller, so better add one for faster bootup
+	$w->emptyTag("StorageController", name=> "Floppy Controller Controller", type=>"I82078", PortCount=>1);
 	$w->endTag(); # storage controllers
 
 $w->endTag(); #vbox:machine
