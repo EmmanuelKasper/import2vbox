@@ -112,7 +112,7 @@ Set the number of virtual CPUs.  The default is 1.
 
 =cut
 
-$| = 1;
+$OUTPUT_AUTOFLUSH = 1;
 
 GetOptions ("help|?" => \$help,
             "man" => \$man,
@@ -164,8 +164,8 @@ if (@roots > 1) {
 my $root = $roots[0];
 
 # Save the inspection data.
-my $type = $g->inspect_get_type ($root); #debian
-my $distro = $g->inspect_get_distro ($root); #linux
+my $type = $g->inspect_get_type ($root); #linux
+my $distro = $g->inspect_get_distro ($root); #debian
 my $arch = $g->inspect_get_arch ($root); #x86_64
 my $major_version = $g->inspect_get_major_version ($root); #7
 my $minor_version = $g->inspect_get_minor_version ($root); #11
