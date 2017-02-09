@@ -108,17 +108,30 @@ Set the number of virtual CPUs.  The default is 1.
 
 =cut
 
+my $no_pred;
+=item B<--no-predictable-nic-names>
+
+Force the conversion of predictable network names
+(https://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames)
+to classical eth0 device name. Only works for Debian VMs, and mostly a workaround for
+https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=853855
+
+=cut
+
 =back
 
 =cut
 
 $OUTPUT_AUTOFLUSH = 1;
+use constant INTERFACES => '/etc/network/interfaces';
+use constant GRUB_DEFAULT => '/etc/default/grub';
 
 GetOptions ("help|?" => \$help,
             "man" => \$man,
             "memory=i" => \$memory_mb,
             "name=s" => \$name,
             "vcpus=i" => \$vcpus,
+            'no-predictable-nic-names' => \$no_pred
     )
     or die "$0: unknown command line option\n";
 
@@ -152,7 +165,7 @@ unlink ".test.qcow2";
 # Open the guest in libguestfs so we can inspect it.
 my $g = Sys::Guestfs->new ();
 eval { $g->set_program ("virt-import-to-ovirt"); };
-$g->add_drive_opts ($_, readonly => 1) foreach (@disks);
+$g->add_drive_opts ($_, readonly => 0) foreach (@disks);
 $g->launch ();
 my @roots = $g->inspect_os ();
 if (@roots == 0) {
@@ -171,6 +184,53 @@ my $major_version = $g->inspect_get_major_version ($root); #7
 my $minor_version = $g->inspect_get_minor_version ($root); #11
 my $product_name = $g->inspect_get_product_name ($root); #7.11
 my $product_variant = $g->inspect_get_product_variant ($root); #unknown
+
+if ($no_pred) {
+
+    #mount all partitions
+    my %mounts = $g->inspect_get_mountpoints($root);
+    my @fses = sort { length $a <=> length $b } keys(%mounts);
+    foreach my $fs (@fses) {
+        $g->mount($mounts{$fs}, $fs);
+    }
+
+    if ($distro eq 'debian' || $g->is_file(INTERFACES)) {
+        print "looking for predictable network interface names ... ";
+        # will match eno (build int ) ens (hot plug ) enps (pci bus and slot)
+        # see https://github.com/systemd/systemd/blob/master/src/udev/udev-builtin-net_id.c#L20
+        my $match_predict_nic = '(eno[0-9]|enp?[0-9]?s[0-9])';
+
+        my $has_predict_nic = 0 ;
+        foreach my $line ($g->read_lines(INTERFACES)) {
+            if ($line =~ m/$match_predict_nic/) {
+                $has_predict_nic = 1;
+                print "\nfound predictable nic entry $1\n";
+            }
+        }
+
+        if ($has_predict_nic) {
+            print "replacing predictable nics\n";
+            $g->command(['sed', '-E', '-i', 's/' . $match_predict_nic . '/eth0/', INTERFACES]);
+#            print INTERFACES, "\n", $g->cat(INTERFACES);
+
+            print "disabling predictable inferfaces names via udev boot parameter \n";
+            $g->command(['sed', '-E', '-i',
+            's/^GRUB_CMDLINE_LINUX="(.*)"$/GRUB_CMDLINE_LINUX="net.ifnames=0 \1"/', GRUB_DEFAULT]);
+#            print GRUB_DEFAULT, "\n", $g->cat(GRUB_DEFAULT);
+            print "calling update-grub in VM\n", $g->command(['update-grub']);
+
+            $g->sync();
+            $g->umount_all();
+        } else {
+            print "none found\n";
+        }
+
+    } else {
+        warn "No debian system with ifupdown interfaces found OS found";
+        print "OS type found: ", $g->inspect_get_distro($root), "\n";
+    }
+
+}
 
 # Get the virtual size of each disk.
 my @virtual_sizes;
