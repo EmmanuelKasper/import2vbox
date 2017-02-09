@@ -164,7 +164,7 @@ unlink ".test.qcow2";
 
 # Open the guest in libguestfs so we can inspect it.
 my $g = Sys::Guestfs->new ();
-eval { $g->set_program ("virt-import-to-ovirt"); };
+eval { $g->set_program ("import2vbox"); };
 $g->add_drive_opts ($_, readonly => 0) foreach (@disks);
 $g->launch ();
 my @roots = $g->inspect_os ();
