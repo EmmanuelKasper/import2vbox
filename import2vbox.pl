@@ -462,11 +462,13 @@ for ($i = 0; $i < @converted_disks; ++$i)
         $boot_drive = "False";
     }
 
+    # see http://www.dmtf.org/sites/default/files/standards/documents/DSP0243_2.1.0.pdf
+    # chapter DiskSection
     $w->startTag ("Disk",
                   [$ovf_ns, "diskId" ] => "vmdisk" . $i,
                   [$ovf_ns, "capacity"] => $virtual_sizes[$i],
                   [$ovf_ns, "fileRef"] => $name . $i,
-                  [$ovf_ns, "format"] => "http://en.wikipedia.org/wiki/Byte",
+                  [$ovf_ns, "format"] => "http://www.vmware.com/interfaces/specifications/vmdk.html#streamOptimized", # needed for OVF 1.0: https://www.virtualbox.org/ticket/6612
                   [$ovf_ns, "disk-type"] => "System",
                   [$ovf_ns, "boot"] => $boot_drive,
                   [$vbox_ns, "uuid"] => $vol_uuids[$i]);
