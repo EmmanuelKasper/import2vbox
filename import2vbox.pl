@@ -240,7 +240,8 @@ foreach (@disks) {
 
 $g->close ();
 
-# http://schemas.dmtf.org/wbem/cim-html/2+/
+# http://schemas.dmtf.org/wbem/cim-html/2+/CIM_OperatingSystem.html
+# OSType class property
 # and enum CIMOSType_T VBox/Main/include/ovfreader.h
 # Map inspection data to OVF ostype.
 my $ostype;
