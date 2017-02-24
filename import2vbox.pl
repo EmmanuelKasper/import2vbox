@@ -184,6 +184,7 @@ my $major_version = $g->inspect_get_major_version ($root); #7
 my $minor_version = $g->inspect_get_minor_version ($root); #11
 my $product_name = $g->inspect_get_product_name ($root); #7.11
 my $product_variant = $g->inspect_get_product_variant ($root); #unknown
+my $hostname = $g->inspect_get_hostname ($root);
 
 if ($no_pred) {
 
@@ -481,7 +482,10 @@ $w->endTag ();
 $w->startTag ("VirtualSystem",
               [$ovf_ns, "id"] => "$name");
 $w->startTag ("Info");
-$w->characters ($name);
+$w->characters (join (' ', $distro, $type, $arch, $product_name));
+$w->endTag ();
+$w->startTag ("Name");
+$w->characters ($hostname);
 $w->endTag ();
 #$w->startTag ("Description");
 #$w->characters ($imported_by);
@@ -490,11 +494,12 @@ $w->endTag ();
 $w->startTag ("OperatingSystemSection",
               [$ovf_ns, "id"] => $ostype,
               [$ovf_ns, "required"] => "false");
+
 $w->startTag ("Info");
-$w->characters ($product_name);
+$w->characters ("The kind of operating system contained in this VM");
 $w->endTag ();
 $w->startTag ("Description");
-$w->characters (join (' ', $distro, $type, $arch, $product_name));
+$w->characters ($distro);
 $w->endTag ();
 $w->endTag ();
 
