@@ -197,7 +197,7 @@ if ($no_pred) {
 
     if ($distro eq 'debian' || $g->is_file(INTERFACES)) {
         print "looking for predictable network interface names ... ";
-        # will match eno (build int ) ens (hot plug ) enps (pci bus and slot)
+        # will match eno (on board) ens (hot plug ) enps (pci bus and slot)
         # see https://github.com/systemd/systemd/blob/master/src/udev/udev-builtin-net_id.c#L20
         my $match_predict_nic = '(eno[0-9]|enp?[0-9]?s[0-9])';
 
@@ -212,12 +212,12 @@ if ($no_pred) {
         if ($has_predict_nic) {
             print "replacing predictable nics\n";
             $g->command(['sed', '-E', '-i', 's/' . $match_predict_nic . '/eth0/', INTERFACES]);
-#            print INTERFACES, "\n", $g->cat(INTERFACES);
+            # print INTERFACES, "\n", $g->cat(INTERFACES);
 
             print "disabling predictable inferfaces names via udev boot parameter \n";
             $g->command(['sed', '-E', '-i',
             's/^GRUB_CMDLINE_LINUX="(.*)"$/GRUB_CMDLINE_LINUX="net.ifnames=0 \1"/', GRUB_DEFAULT]);
-#            print GRUB_DEFAULT, "\n", $g->cat(GRUB_DEFAULT);
+            # print GRUB_DEFAULT, "\n", $g->cat(GRUB_DEFAULT);
             print "calling update-grub in VM\n", $g->command(['update-grub']);
 
             $g->sync();
@@ -227,7 +227,7 @@ if ($no_pred) {
         }
 
     } else {
-        warn "No debian system with ifupdown interfaces found OS found";
+        warn "No debian system with ifupdown interfaces found";
         print "OS type found: ", $g->inspect_get_distro($root), "\n";
     }
 
@@ -312,8 +312,6 @@ else {
 }
 
 my $files_output_dir = getcwd;
-#my $files_output_dir = $files_output_dir;
-#$files_output_dir =~ s{.*/}{};
 
 # Start the import.
 print "Importing $type $distro $arch $product_name ...\n";
@@ -356,7 +354,6 @@ my $i;
 my $time = time ();
 my $iso_time = strftime ("%Y/%m/%d %H:%M:%S", gmtime ());
 my $imported_by = "Imported by import2vbox.pl";
-#my @real_sizes;
 
 my $disk_format = "vmdk";
 
@@ -378,15 +375,12 @@ for ($i = 0; $i < @disks; ++$i) {
     }
     system ("qemu-img", "convert", "-p",
             "-O", "$disk_format",
-#            @compat_option,
+            @compat_option,
             $input_file,
             $output_file) == 0
                or die "qemu-img: $input_file: failed (status $?)";
     print "calling qemu ....\n";
     push @converted_disks, $output_file;
-    #push @real_sizes, -s $output_file;
-
-    #my $size_in_sectors = $virtual_sizes[$i] / 512;
 
 }
 # Create the OVF.
@@ -623,7 +617,7 @@ for ($i = 0; $i < @disks; ++$i)
 
 $w->endTag (); # ovf:VirtualHardwareSection
 
-# Add a VirtualBox descriptor, an unfornate duplicate of the OVF descriptor
+# Add a VirtualBox descriptor, an unfortunate duplicate of the OVF descriptor
 # this is needed because of https://github.com/andsens/bootstrap-vz/issues/247
 $w->startTag([$vbox_ns, "Machine"],
 				[$ovf_ns, "required"]=> "false",
