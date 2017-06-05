@@ -125,6 +125,7 @@ https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=853855
 $OUTPUT_AUTOFLUSH = 1;
 use constant INTERFACES => '/etc/network/interfaces';
 use constant GRUB_DEFAULT => '/etc/default/grub';
+use constant VIRTUALBOX_MAX_NICS => 8;
 
 GetOptions ("help|?" => \$help,
             "man" => \$man,
@@ -640,6 +641,13 @@ $w->startTag([$vbox_ns, "Machine"],
 	$w->startTag("Adapter", slot => "0", enabled => "true", type => "82540EM");
 	$w->emptyTag("NAT");
 	$w->endTag();
+
+	# make sure added nics are of the same type
+	# looks like VirtualBox OVF exports do that, fix for debian bug #863580
+	for ($i = 1; $i < VIRTUALBOX_MAX_NICS; $i++) {
+		$w->emptyTag("Adapter", slot => $i, type => "82540EM");
+	}
+
 	$w->endTag();
 	$w->endTag();
 	$w->startTag("StorageControllers");
