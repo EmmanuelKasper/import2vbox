@@ -236,9 +236,9 @@ if ($no_pred) {
 
 # Get the virtual size of each disk.
 my @virtual_sizes;
-foreach (@disks) {
-    push @virtual_sizes, $g->disk_virtual_size ($_);
-}
+
+my @devices = $g->list_devices();
+push @virtual_sizes, $g->blockdev_getsize64($_) foreach @devices;
 
 $g->close ();
 
