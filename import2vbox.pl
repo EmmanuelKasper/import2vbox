@@ -262,7 +262,7 @@ elsif ($type eq "linux" && $distro eq "debian") {
     }
 }
 elsif ($type eq "linux") {
-    $ostype = "OtherLinux"
+    $ostype = 101
 }
 elsif ($type eq "windows" && $major_version == 5 && $minor_version == 1) {
     $ostype = "WindowsXP"
