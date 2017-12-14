@@ -15,3 +15,6 @@ uninstall:
 	# - ignores error in recipes, see
 	# https://www.gnu.org/software/make/manual/html_node/Errors.html
 	-rm $(DESTDIR)/$(prefix)/bin/import2vbox
+
+test:
+	perl test.pl
