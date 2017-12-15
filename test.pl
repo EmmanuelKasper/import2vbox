@@ -2,8 +2,10 @@
 
 use strict;
 use warnings;
+use feature 'say';
 
 use Getopt::Long;
+use Test::More tests => 4;
 
 my $keep_vbox_vm;
 
@@ -25,12 +27,27 @@ if (! -f $disk) {
 
 my $vm_name = 'test_vm';
 
-system("./import2vbox.pl --vcpus 2 --memory 384 $disk --name $vm_name");
+assert("./import2vbox.pl --vcpus 2 --memory 384 $disk --name $vm_name", 
+    'successfull ovf generation');
 
-#system("VBoxManage import --dry-run${vm_name}.ovf");
-system("VBoxManage import ${vm_name}.ovf");
-system("ovftool --verifyOnly ${vm_name}.ovf");
-system("VBoxManage showvminfo $vm_name --machinereadable | grep storagecontrollerportcount0");
-system("VBoxManage unregistervm $vm_name --delete") if !$keep_vbox_vm;
+assert("VBoxManage import ${vm_name}.ovf", "VBoxManage import ${vm_name}.ovf");
+assert("ovftool --verifyOnly ${vm_name}.ovf", "ovftool --verifyOnly ${vm_name}.ovf");
+open my $conf, "-|", "VBoxManage showvminfo $vm_name --machinereadable";
+my $sata_port_count;
+while (<$conf>) {
+	if ($_ =~ m/^storagecontrollerportcount0="(.+)"$/) {
+		$sata_port_count = $1;
+    }
+}
 
-#unlink "${vm_name}.ovf";
+ok($sata_port_count == 1, "1 SATA port found");
+done_testing();
+
+system("VBoxManage unregistervm $vm_name --delete >/dev/null 2>&1") if !$keep_vbox_vm;
+unlink "${vm_name}.ovf";
+
+sub assert {
+	my ($command, $description) = @_;
+	my $rc = system("$command >/dev/null 2>&1");
+	ok($rc == 0, $description);
+}

@@ -16,5 +16,6 @@ uninstall:
 	# https://www.gnu.org/software/make/manual/html_node/Errors.html
 	-rm $(DESTDIR)/$(prefix)/bin/import2vbox
 
+.PHONY: test
 test:
 	perl test.pl
