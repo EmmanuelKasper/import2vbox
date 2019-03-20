@@ -177,6 +177,9 @@ if (@roots > 1) {
 }
 my $root = $roots[0];
 
+# Derive boot drive index from root string (format is always '/dev/sdX#' according to docs)
+my $boot_drive_index = ord(substr($root, 7, 1)) - ord('a');
+
 # Save the inspection data.
 my $type = $g->inspect_get_type ($root); #linux
 my $distro = $g->inspect_get_distro ($root); #debian
@@ -453,7 +456,7 @@ for ($i = 0; $i < @converted_disks; ++$i)
     my $href = $converted_disks[$i];
 
     my $boot_drive;
-    if ($i == 0) {
+    if ($i == $boot_drive_index) {
         $boot_drive = "True";
     } else {
         $boot_drive = "False";
