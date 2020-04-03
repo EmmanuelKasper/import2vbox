@@ -7,7 +7,7 @@ prefix = /usr/local
 all:
 
 install:
-	# staged install support
+	# DESTDIR staged install support
 	# https://www.gnu.org/prep/standards/html_node/DESTDIR.html
 	install -D import2vbox.pl $(DESTDIR)/$(prefix)/bin/import2vbox
 
@@ -16,6 +16,7 @@ uninstall:
 	# https://www.gnu.org/software/make/manual/html_node/Errors.html
 	-rm $(DESTDIR)/$(prefix)/bin/import2vbox
 
-.PHONY: test
 test:
 	perl test.pl
+
+.PHONY: all install uninstall test
