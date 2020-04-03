@@ -155,12 +155,6 @@ if (!defined $name) {
 # Does qemu-img generally work OK?
 system ("qemu-img create -f qcow2 .test.qcow2 10M >/dev/null") == 0
     or die "qemu-img command not installed or not working\n";
-
-# Does this version of qemu-img support compat=0.10?  RHEL 6
-# did NOT support it.
-my $qemu_img_supports_compat = 0;
-system ("qemu-img create -f qcow2 -o compat=0.10 .test.qcow2 10M >/dev/null 2>&1") == 0
-    and $qemu_img_supports_compat = 1;
 unlink ".test.qcow2";
 
 # Open the guest in libguestfs so we can inspect it.
@@ -373,13 +367,8 @@ for ($i = 0; $i < @disks; ++$i) {
     my $output_file = $input_file =~ s/\..*$/\.\Q$disk_format\E/r;
     open (my $fh, ">", $output_file) or die "open: $output_file: $!";
     print "Converting $input_file to $output_file ...\n ";
-    my @compat_option = ();
-    if ($qemu_img_supports_compat) {
-        @compat_option = ("-o", "compat=0.10") # for RHEL 6-based ovirt nodes
-    }
     system ("qemu-img", "convert", "-p",
             "-O", "$disk_format",
-            @compat_option,
             $input_file,
             $output_file) == 0
                or die "qemu-img: $input_file: failed (status $?)";
