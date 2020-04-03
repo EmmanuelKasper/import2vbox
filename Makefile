@@ -7,13 +7,13 @@ prefix = /usr/local
 all:
 
 install:
-	# DESTDIR staged install support
-	# https://www.gnu.org/prep/standards/html_node/DESTDIR.html
+	@# DESTDIR staged install support
+	@# https://www.gnu.org/prep/standards/html_node/DESTDIR.html
 	install -D import2vbox.pl $(DESTDIR)/$(prefix)/bin/import2vbox
 
 uninstall:
-	# - ignores error in recipes, see
-	# https://www.gnu.org/software/make/manual/html_node/Errors.html
+	@# - ignores error in recipes, see
+	@# https://www.gnu.org/software/make/manual/html_node/Errors.html
 	-rm $(DESTDIR)/$(prefix)/bin/import2vbox
 
 test:
