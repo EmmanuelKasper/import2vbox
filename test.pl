@@ -18,10 +18,10 @@ die "usage: $0 [ --keep ] disk image" if ! -f $disk;
 }
 
 
-$disk = "ubuntu-16.04-server-cloudimg-amd64-disk1.vmdk" if ! $disk;
+$disk = "ubuntu-18.04-minimal-cloudimg-amd64.img" if ! $disk;
 
 if (! -f $disk) {
-    system("wget https://cloud-images.ubuntu.com/releases/16.04/release/$disk");
+    system("wget https://cloud-images.ubuntu.com/minimal/releases/bionic/release/$disk");
 }
 
 
@@ -45,6 +45,7 @@ done_testing();
 
 system("VBoxManage unregistervm $vm_name --delete >/dev/null 2>&1") if !$keep_vbox_vm;
 unlink "${vm_name}.ovf";
+unlink "ubuntu-18.vmdk";
 
 sub assert {
 	my ($command, $description) = @_;
