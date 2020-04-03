@@ -1,4 +1,5 @@
 This script lets you import a virtual machine disk image to VirtualBox
+
 Based on import-to-ovirt.pl by Richard W.M. Jones
 
 IMPORTANT NOTES:
