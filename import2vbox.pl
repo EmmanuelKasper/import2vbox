@@ -629,6 +629,7 @@ $w->startTag([$vbox_ns, "Machine"],
 	$w->startTag("BIOS");
 	$w->endTag();
 	$w->emptyTag("Memory", RAMSize => $memory_mb);
+    $w->emptyTag("Display", controller => "VMSVGA");
 	$w->startTag("Network");
 	$w->startTag("Adapter", slot => "0", enabled => "true", type => "82540EM");
 	$w->emptyTag("NAT");

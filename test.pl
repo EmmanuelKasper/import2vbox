@@ -5,7 +5,7 @@ use warnings;
 use feature 'say';
 
 use Getopt::Long;
-use Test::More tests => 4;
+use Test::More tests => 5;
 
 my $keep_vbox_vm;
 
@@ -33,14 +33,17 @@ assert("./import2vbox.pl --vcpus 2 --memory 384 $disk --name $vm_name",
 assert("VBoxManage import ${vm_name}.ovf", "VBoxManage import ${vm_name}.ovf");
 assert("ovftool --verifyOnly ${vm_name}.ovf", "ovftool --verifyOnly ${vm_name}.ovf");
 open my $conf, "-|", "VBoxManage showvminfo $vm_name --machinereadable";
-my $sata_port_count;
 while (<$conf>) {
 	if ($_ =~ m/^storagecontrollerportcount0="(.+)"$/) {
-		$sata_port_count = $1;
+		my $sata_port_count = $1;
+		ok($sata_port_count == 1, "1 SATA port found");
+    }
+	if ($_ =~ m/^graphicscontroller="(.+)"$/) {
+		my $display_type = $1;
+		ok($display_type eq "vmsvga", "Default display set to vmsvga");
     }
 }
 
-ok($sata_port_count == 1, "1 SATA port found");
 done_testing();
 
 system("VBoxManage unregistervm $vm_name --delete >/dev/null 2>&1") if !$keep_vbox_vm;
